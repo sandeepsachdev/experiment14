@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Mailing Dashboard')}"></head>
+<body th:replace="~{fragments/layout :: page('Mailing Dashboard', ~{::main})}">
+<main>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-megaphone me-2"></i>Mailing Dashboard</h4>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <div class="fs-2 fw-bold text-primary" th:text="${campaigns.size()}">0</div>
+          <div class="text-muted">Campaigns</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <div class="fs-2 fw-bold text-success" th:text="${mailingLists.size()}">0</div>
+          <div class="text-muted">Mailing Lists</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <div class="fs-2 fw-bold text-info" th:text="${totalContacts}">0</div>
+          <div class="text-muted">Total Contacts</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <div class="fs-2 fw-bold text-warning" th:text="${totalEmailsSent}">0</div>
+          <div class="text-muted">Emails Sent</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="mb-4 d-flex gap-2">
+    <a th:href="@{/mailing/campaigns/new}" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-1"></i> New Campaign
+    </a>
+    <a th:href="@{/mailing/lists/new}" class="btn btn-outline-secondary">
+      <i class="bi bi-people me-1"></i> New Mailing List
+    </a>
+  </div>
+
+  <!-- Recent campaigns -->
+  <h5 class="mb-3">Recent Campaigns</h5>
+  <div th:if="${campaigns.isEmpty()}" class="text-muted">No campaigns yet.</div>
+  <div th:if="${!campaigns.isEmpty()}" class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Campaign</th>
+          <th>Subject</th>
+          <th>Status</th>
+          <th class="text-center">Sent</th>
+          <th class="text-center">Bounced</th>
+          <th class="text-center">Replied</th>
+          <th>Sent At</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="c : ${campaigns}">
+          <td th:text="${c.name}"></td>
+          <td th:text="${c.subject}"></td>
+          <td>
+            <span th:switch="${c.status.name()}">
+              <span th:case="'DRAFT'" class="badge bg-secondary">Draft</span>
+              <span th:case="'SENDING'" class="badge bg-warning text-dark">Sending</span>
+              <span th:case="'SENT'" class="badge bg-success">Sent</span>
+              <span th:case="'FAILED'" class="badge bg-danger">Failed</span>
+            </span>
+          </td>
+          <td class="text-center" th:text="${c.totalSent}"></td>
+          <td class="text-center">
+            <span th:text="${c.totalBounced}" th:classappend="${c.totalBounced > 0} ? 'text-danger fw-bold' : ''"></span>
+          </td>
+          <td class="text-center">
+            <span th:text="${c.totalReplied}" th:classappend="${c.totalReplied > 0} ? 'text-success fw-bold' : ''"></span>
+          </td>
+          <td th:text="${c.sentAt != null} ? ${#temporals.format(c.sentAt, 'dd MMM yyyy HH:mm')} : '-'"></td>
+          <td>
+            <a th:href="@{/mailing/campaigns/{id}(id=${c.id})}" class="btn btn-sm btn-outline-primary">View</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

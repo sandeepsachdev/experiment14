@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Campaigns')}"></head>
+<body th:replace="~{fragments/layout :: page('Campaigns', ~{::main})}">
+<main>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-envelope-paper me-2"></i>Campaigns</h4>
+    <a th:href="@{/mailing/campaigns/new}" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-1"></i> New Campaign
+    </a>
+  </div>
+
+  <div th:if="${campaigns.isEmpty()}" class="text-muted">No campaigns yet.</div>
+  <div th:if="${!campaigns.isEmpty()}" class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Subject</th>
+          <th>Status</th>
+          <th class="text-center">Sent</th>
+          <th class="text-center">Bounced</th>
+          <th class="text-center">Replied</th>
+          <th>Sent At</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="c : ${campaigns}">
+          <td>
+            <a th:href="@{/mailing/campaigns/{id}(id=${c.id})}" th:text="${c.name}"
+               class="fw-semibold text-decoration-none"></a>
+          </td>
+          <td th:text="${c.subject}"></td>
+          <td>
+            <span th:switch="${c.status.name()}">
+              <span th:case="'DRAFT'" class="badge bg-secondary">Draft</span>
+              <span th:case="'SENDING'" class="badge bg-warning text-dark">Sending</span>
+              <span th:case="'SENT'" class="badge bg-success">Sent</span>
+              <span th:case="'FAILED'" class="badge bg-danger">Failed</span>
+            </span>
+          </td>
+          <td class="text-center" th:text="${c.totalSent}"></td>
+          <td class="text-center">
+            <span th:text="${c.totalBounced}"
+                  th:classappend="${c.totalBounced > 0} ? 'text-danger fw-bold' : ''"></span>
+          </td>
+          <td class="text-center">
+            <span th:text="${c.totalReplied}"
+                  th:classappend="${c.totalReplied > 0} ? 'text-success fw-bold' : ''"></span>
+          </td>
+          <td th:text="${c.sentAt != null} ? ${#temporals.format(c.sentAt, 'dd MMM HH:mm')} : '-'"></td>
+          <td th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy')}"></td>
+          <td class="text-nowrap">
+            <a th:href="@{/mailing/campaigns/{id}(id=${c.id})}" class="btn btn-sm btn-outline-primary me-1">View</a>
+            <a th:href="@{/mailing/campaigns/{id}/edit(id=${c.id})}"
+               th:if="${c.status.name() == 'DRAFT'}"
+               class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+            <form th:action="@{/mailing/campaigns/{id}/delete(id=${c.id})}" method="post" class="d-inline"
+                  onsubmit="return confirm('Delete campaign?')">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

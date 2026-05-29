@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -17,7 +18,18 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/error", "/login**", "/oauth2/**", "/login/oauth2/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated()
+            )
+            .csrf(csrf -> csrf
+                // Disable CSRF for REST API and H2 console; Thymeleaf forms handle CSRF automatically
+                .ignoringRequestMatchers(
+                    new AntPathRequestMatcher("/api/mailing/**"),
+                    new AntPathRequestMatcher("/h2-console/**")
+                )
+            )
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.sameOrigin())
             )
             .oauth2Login(oauth2 -> oauth2
                 .loginPage("/")

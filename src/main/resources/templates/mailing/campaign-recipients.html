@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Recipients')}"></head>
+<body th:replace="~{fragments/layout :: page('Recipients', ~{::main})}">
+<main>
+  <div class="mb-3">
+    <a th:href="@{/mailing/campaigns/{id}(id=${campaign.id})}" class="text-decoration-none text-muted">
+      <i class="bi bi-arrow-left me-1"></i> Back to Campaign
+    </a>
+  </div>
+
+  <h4 class="mb-1">Recipients: <span th:text="${campaign.name}"></span></h4>
+  <p class="text-muted mb-4">Subject: <em th:text="${campaign.subject}"></em></p>
+
+  <!-- Summary badges -->
+  <div class="d-flex gap-2 mb-4 flex-wrap">
+    <span class="badge bg-primary fs-6">
+      <i class="bi bi-send me-1"></i>
+      Sent: <span th:text="${campaign.totalSent}"></span>
+    </span>
+    <span class="badge bg-danger fs-6">
+      <i class="bi bi-x-circle me-1"></i>
+      Bounced: <span th:text="${campaign.totalBounced}"></span>
+    </span>
+    <span class="badge bg-success fs-6">
+      <i class="bi bi-reply me-1"></i>
+      Replied: <span th:text="${campaign.totalReplied}"></span>
+    </span>
+    <span class="badge bg-info fs-6">
+      <i class="bi bi-check-circle me-1"></i>
+      Delivered: <span th:text="${campaign.totalSent - campaign.totalBounced}"></span>
+    </span>
+  </div>
+
+  <div th:if="${recipients.isEmpty()}" class="text-muted">No recipients yet.</div>
+  <div th:if="${!recipients.isEmpty()}" class="table-responsive">
+    <table class="table table-hover align-middle small">
+      <thead class="table-light">
+        <tr>
+          <th>Email</th>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Sent At</th>
+          <th>Bounced At</th>
+          <th>Replied At</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="r : ${recipients}">
+          <td th:text="${r.email}"></td>
+          <td th:text="${r.name ?: '-'}"></td>
+          <td>
+            <span th:switch="${r.status.name()}">
+              <span th:case="'PENDING'" class="badge bg-secondary">Pending</span>
+              <span th:case="'SENT'" class="badge bg-primary">Sent</span>
+              <span th:case="'BOUNCED'" class="badge bg-danger">Bounced</span>
+              <span th:case="'REPLIED'" class="badge bg-success">Replied</span>
+              <span th:case="'FAILED'" class="badge bg-dark">Failed</span>
+            </span>
+          </td>
+          <td th:text="${r.sentAt != null} ? ${#temporals.format(r.sentAt, 'dd MMM HH:mm:ss')} : '-'"></td>
+          <td th:text="${r.bouncedAt != null} ? ${#temporals.format(r.bouncedAt, 'dd MMM HH:mm:ss')} : '-'"
+              th:classappend="${r.bouncedAt != null} ? 'text-danger' : ''"></td>
+          <td th:text="${r.repliedAt != null} ? ${#temporals.format(r.repliedAt, 'dd MMM HH:mm:ss')} : '-'"
+              th:classappend="${r.repliedAt != null} ? 'text-success' : ''"></td>
+          <td>
+            <span th:if="${r.bounceReason != null and !r.bounceReason.isBlank()}"
+                  class="text-danger"
+                  th:title="${r.bounceReason}">
+              <i class="bi bi-info-circle" data-bs-toggle="tooltip"
+                 th:title="${r.bounceReason}"></i> Bounce reason
+            </span>
+            <span th:if="${r.replySnippet != null and !r.replySnippet.isBlank()}"
+                  class="text-success"
+                  th:title="${r.replySnippet}">
+              <i class="bi bi-chat-quote" data-bs-toggle="tooltip"
+                 th:title="${r.replySnippet}"></i> Reply preview
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<script>
+  // Activate Bootstrap tooltips
+  document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (el) { new bootstrap.Tooltip(el); });
+  });
+</script>
+</body>
+</html>

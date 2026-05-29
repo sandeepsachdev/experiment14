@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mailing Lists')}"></head>
+<body th:replace="~{fragments/layout :: page('Mailing Lists', ~{::main})}">
+<main>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-people me-2"></i>Mailing Lists</h4>
+    <a th:href="@{/mailing/lists/new}" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-1"></i> New List
+    </a>
+  </div>
+
+  <div th:if="${mailingLists.isEmpty()}" class="text-muted">No mailing lists yet.</div>
+  <div th:if="${!mailingLists.isEmpty()}" class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th class="text-center">Contacts</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="list : ${mailingLists}">
+          <td>
+            <a th:href="@{/mailing/lists/{id}(id=${list.id})}" th:text="${list.name}" class="fw-semibold text-decoration-none"></a>
+          </td>
+          <td th:text="${list.description ?: '-'}"></td>
+          <td class="text-center" th:text="${list.contacts.size()}"></td>
+          <td th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}"></td>
+          <td>
+            <a th:href="@{/mailing/lists/{id}(id=${list.id})}" class="btn btn-sm btn-outline-primary me-1">Manage</a>
+            <form th:action="@{/mailing/lists/{id}/delete(id=${list.id})}" method="post" class="d-inline"
+                  onsubmit="return confirm('Delete this list?')">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mailing List')}"></head>
+<body th:replace="~{fragments/layout :: page('Mailing List', ~{::main})}">
+<main>
+  <div class="mb-3">
+    <a th:href="@{/mailing/lists}" class="text-decoration-none text-muted">
+      <i class="bi bi-arrow-left me-1"></i> Back to Lists
+    </a>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <h4 class="mb-1" th:text="${mailingList.name}"></h4>
+      <p class="text-muted mb-0" th:text="${mailingList.description ?: ''}"></p>
+    </div>
+    <form th:action="@{/mailing/lists/{id}/delete(id=${mailingList.id})}" method="post"
+          onsubmit="return confirm('Delete this list and all contacts?')">
+      <button type="submit" class="btn btn-sm btn-outline-danger">
+        <i class="bi bi-trash me-1"></i> Delete List
+      </button>
+    </form>
+  </div>
+
+  <div class="row g-4">
+    <!-- Contacts table -->
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-semibold">
+          <i class="bi bi-people me-2"></i>Contacts
+          <span class="badge bg-primary ms-2" th:text="${contacts.size()}"></span>
+        </div>
+        <div class="card-body p-0">
+          <div th:if="${contacts.isEmpty()}" class="p-4 text-muted">No contacts yet.</div>
+          <table th:if="${!contacts.isEmpty()}" class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Added</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="c : ${contacts}">
+                <td th:text="${c.email}"></td>
+                <td th:text="${c.name ?: '-'}"></td>
+                <td th:text="${#temporals.format(c.addedAt, 'dd MMM yyyy')}"></td>
+                <td>
+                  <form th:action="@{/mailing/lists/{id}/contacts/{cid}/delete(id=${mailingList.id},cid=${c.id})}"
+                        method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-link text-danger p-0">
+                      <i class="bi bi-x-circle"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add contact + import panel -->
+    <div class="col-md-4">
+      <!-- Add single contact -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white fw-semibold">Add Contact</div>
+        <div class="card-body">
+          <form th:action="@{/mailing/lists/{id}/contacts(id=${mailingList.id})}" method="post">
+            <div class="mb-2">
+              <input type="email" name="email" class="form-control form-control-sm"
+                     placeholder="email@example.com" required>
+            </div>
+            <div class="mb-3">
+              <input type="text" name="name" class="form-control form-control-sm"
+                     placeholder="Name (optional)">
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary w-100">Add Contact</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Bulk import -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-semibold">Bulk Import</div>
+        <div class="card-body">
+          <form th:action="@{/mailing/lists/{id}/contacts/import(id=${mailingList.id})}" method="post">
+            <div class="mb-2">
+              <small class="text-muted">One per line: <code>email,name</code></small>
+              <textarea name="csvData" class="form-control form-control-sm mt-1" rows="5"
+                        placeholder="alice@example.com,Alice&#10;bob@example.com,Bob"></textarea>
+            </div>
+            <button type="submit" class="btn btn-sm btn-outline-primary w-100">Import</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>
