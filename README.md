@@ -119,6 +119,27 @@ src/main/resources/templates/
 └── compose.html
 ```
 
+## How This Was Built
+
+This app was generated entirely using [Claude Code](https://claude.ai/code) with the following prompts:
+
+---
+
+**Prompt 1 — Generate the app**
+> create a spring boot app which is web client for gmail.
+
+---
+
+**Prompt 2 — Add Docker support**
+> add a dockerfile which makes it easy to deploy to render
+
+---
+
+**Prompt 3 — Documentation**
+> update the readme file
+
+---
+
 ## Tech Stack
 
 - Spring Boot 3.2
