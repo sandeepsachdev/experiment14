@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Email')}"></head>
+<body th:replace="~{fragments/layout :: page('Email', ~{::main})}">
+<main>
+    <div class="mb-3 d-flex gap-2">
+        <a th:href="@{/inbox}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+        <a th:href="@{/compose(replyTo=${email.id})}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-reply"></i> Reply
+        </a>
+        <a th:href="@{/compose}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-pencil-square"></i> Compose
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <!-- Subject -->
+            <h4 class="fw-bold mb-3" th:text="${email.subject ?: '(no subject)'}">Subject</h4>
+
+            <!-- Headers -->
+            <div class="d-flex flex-wrap gap-2 mb-3 pb-3 border-bottom">
+                <div>
+                    <span class="text-muted small">From:</span>
+                    <span class="ms-1 fw-semibold" th:text="${email.from}">sender</span>
+                </div>
+                <div class="ms-3">
+                    <span class="text-muted small">To:</span>
+                    <span class="ms-1" th:text="${email.to}">recipient</span>
+                </div>
+                <div class="ms-auto">
+                    <span class="text-muted small" th:text="${email.date}">date</span>
+                </div>
+            </div>
+
+            <!-- Body: prefer HTML, fall back to plain text -->
+            <!-- Note: th:utext renders HTML from email body — acceptable for MVP -->
+            <div th:if="${email.bodyHtml != null and !email.bodyHtml.isEmpty()}"
+                 class="email-body"
+                 th:utext="${email.bodyHtml}">
+            </div>
+            <pre th:if="${(email.bodyHtml == null or email.bodyHtml.isEmpty()) and (email.bodyText != null and !email.bodyText.isEmpty())}"
+                 class="text-wrap font-monospace small"
+                 th:text="${email.bodyText}"></pre>
+            <p th:if="${(email.bodyHtml == null or email.bodyHtml.isEmpty()) and (email.bodyText == null or email.bodyText.isEmpty())}"
+               class="text-muted fst-italic">No message body.</p>
+        </div>
+    </div>
+</main>
+</body>
+</html>

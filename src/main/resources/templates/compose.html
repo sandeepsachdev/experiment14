@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Compose')}"></head>
+<body th:replace="~{fragments/layout :: page('Compose', ~{::main})}">
+<main>
+    <div class="card border-0 shadow-sm" style="max-width: 800px;">
+        <div class="card-header bg-white border-bottom">
+            <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-pencil-square me-2"></i>
+                <span th:text="${replyTo != null and !replyTo.isEmpty()} ? 'Reply' : 'New Message'">Compose</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/send}" method="post">
+                <!-- CSRF token is injected automatically by Spring Security / Thymeleaf -->
+
+                <!-- Hidden fields for threading -->
+                <input type="hidden" name="threadId" th:value="${threadId}"/>
+                <input type="hidden" name="inReplyTo" th:value="${inReplyTo}"/>
+                <input type="hidden" name="references" th:value="${references}"/>
+
+                <div class="mb-3">
+                    <label for="to" class="form-label fw-semibold">To</label>
+                    <input type="email" id="to" name="to" class="form-control"
+                           th:value="${to}" placeholder="recipient@example.com" required/>
+                </div>
+
+                <div class="mb-3">
+                    <label for="subject" class="form-label fw-semibold">Subject</label>
+                    <input type="text" id="subject" name="subject" class="form-control"
+                           th:value="${subject}" placeholder="Subject" required/>
+                </div>
+
+                <div class="mb-4">
+                    <label for="body" class="form-label fw-semibold">Message</label>
+                    <textarea id="body" name="body" class="form-control font-monospace"
+                              rows="12" placeholder="Write your message here..."
+                              th:text="${body}"></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-1"></i> Send
+                    </button>
+                    <a th:href="${replyTo != null and !replyTo.isEmpty()} ? @{/email/{id}(id=${replyTo})} : @{/inbox}"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg me-1"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>
